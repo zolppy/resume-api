@@ -1,6 +1,13 @@
 from pydantic import AnyHttpUrl
 from fastapi import FastAPI, Request
+from contextlib import asynccontextmanager
 from .api.v1 import schemas, database, api_v1_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await database.create_tables()
+    yield
 
 
 app = FastAPI(
@@ -8,15 +15,9 @@ app = FastAPI(
     description="""
     Manages Resume's data.
     """,
-    version="0.03.0",
+    version="0.04.1",
+    lifespan=lifespan,
 )
-
-
-# TODO: migrate this to lifespan later
-@app.on_event("startup")
-async def startup_event():
-    await database.create_tables()
-
 
 app.include_router(router=api_v1_router, prefix="/api/v1")
 
@@ -25,17 +26,9 @@ app.include_router(router=api_v1_router, prefix="/api/v1")
     path="/",
     response_model=schemas.RootOut,
     summary="Get the URLs for the API documentation.",
+    description="Get the URLs for the API documentation.",
 )
-def root(request: Request):
-    """
-    This endpoint returns the URLs for the API documentation.
-
-    Args:
-        request (Request): The incoming request.
-
-    Returns:
-        schemas.RootOut: A Pydantic model containing the URLs for the API documentation.
-    """
+def root(request: Request) -> schemas.RootOut:
     base_url = str(request.base_url)
     docs_url = base_url.rstrip("/") + str(app.docs_url)
     redoc_url = base_url.rstrip("/") + str(app.redoc_url)
