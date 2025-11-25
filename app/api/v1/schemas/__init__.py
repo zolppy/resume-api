@@ -1,4 +1,4 @@
 from .root import RootOut
-from .language import LanguageIn, LanguageCreate, LanguageOut
+from .language import LanguageIn, LanguageOut, LanguageUpdate
 
-__all__ = ["RootOut", "LanguageIn", "LanguageCreate", "LanguageOut"]
+__all__ = ["RootOut", "LanguageIn", "LanguageOut", "LanguageUpdate"]

@@ -43,7 +43,3 @@ class LanguageOut(LanguageIn):
 
     class Config:
         from_attributes = True
-
-
-class LanguageCreate(LanguageOut):
-    pass

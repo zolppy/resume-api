@@ -1,7 +1,8 @@
-from typing import Optional
 from .. import schemas, crud
 from pydantic import PositiveInt
+from typing import List, Optional
 from fastapi import status, HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 language_crud = crud.LanguageCrud()
@@ -13,7 +14,7 @@ class LanguageService:
         db: AsyncSession,
         page: Optional[PositiveInt] = 1,
         items_per_page: Optional[PositiveInt] = 100,
-    ):
+    ) -> List[schemas.LanguageOut]:
         """
         Retrieves all languages from the database.
 
@@ -36,9 +37,7 @@ class LanguageService:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND, detail="Languages not found."
                 )
-            return [
-                schemas.LanguageOut.model_validate(language) for language in languages
-            ]
+            return [schemas.LanguageOut.model_validate(l) for l in languages]
         except HTTPException:
             raise
         except Exception as e:
@@ -48,7 +47,9 @@ class LanguageService:
             )
 
     @staticmethod
-    async def create_language(db: AsyncSession, language: schemas.LanguageIn):
+    async def create(
+        db: AsyncSession, language: schemas.LanguageIn
+    ) -> schemas.LanguageOut:
         """
         Creates a language in the database.
 
@@ -57,18 +58,46 @@ class LanguageService:
             language (schemas.LanguageIn): The language to create.
 
         Returns:
-            schemas.LanguageCreate: The created language.
+            schemas.LanguageOut: The created language.
 
         Raises:
             HTTPException: If the language already exists (409) or if there is an internal server error (500).
         """
         try:
-            created_language = await language_crud.create_language(
-                db=db, language=language
+            created_language = await language_crud.create(db=db, language=language)
+            return schemas.LanguageOut.model_validate(created_language)
+        except IntegrityError:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Language already exists.",
             )
-            return schemas.LanguageCreate.model_validate(created_language)
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to create language: {str(e)}",
+            )
+
+    @staticmethod
+    async def delete_by_id(db: AsyncSession, id: PositiveInt) -> None:
+        """
+        Deletes a language by its ID from the database.
+
+        Args:
+            db (AsyncSession): A database session.
+            id (PositiveInt): The ID of the language to delete.
+
+        Returns:
+            None
+
+        Raises:
+            HTTPException: If the language does not exist (404) or if there is an internal server error (500).
+        """
+        try:
+            await language_crud.delete_by_id(db=db, id=id)
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to delete language: {str(e)}",
             )

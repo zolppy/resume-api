@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from .. import schemas, models
 from pydantic import PositiveInt
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -38,7 +39,7 @@ class LanguageCrud:
         return result.scalars().all()
 
     @staticmethod
-    async def create_language(db: AsyncSession, language: schemas.LanguageIn):
+    async def create(db: AsyncSession, language: schemas.LanguageIn):
         """
         Creates a language in the database.
 
@@ -56,3 +57,27 @@ class LanguageCrud:
         await db.commit()
         await db.refresh(language)
         return language
+
+    @staticmethod
+    async def delete_by_id(db: AsyncSession, id: PositiveInt) -> None:
+        """
+        Deletes a language by its ID from the database.
+
+        Args:
+            db (AsyncSession): A database session.
+            id (PositiveInt): The ID of the language to delete.
+
+        Returns:
+            None
+
+        Raises:
+            HTTPException: If the language does not exist (404) or if there is an internal server error (500).
+        """
+        language = await db.get(models.Language, id)
+        if not language:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Language not found.",
+            )
+        await db.delete(language)
+        await db.commit()

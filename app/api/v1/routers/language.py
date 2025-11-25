@@ -2,7 +2,7 @@ from pydantic import PositiveInt
 from typing import List, Optional
 from .. import schemas, database, services
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, status, Body, Depends, Query
+from fastapi import APIRouter, Path, status, Body, Depends, Query
 
 language_router = APIRouter()
 language_service = services.LanguageService()
@@ -20,7 +20,7 @@ async def get_all(
     items_per_page: Optional[PositiveInt] = Query(
         ge=1, default=100, description="Items per page."
     ),
-):
+) -> List[schemas.LanguageOut]:
     """
     Retrieves all languages from the database.
 
@@ -40,14 +40,14 @@ async def get_all(
 @language_router.post(
     path="/",
     status_code=status.HTTP_201_CREATED,
-    response_model=schemas.LanguageCreate,
+    response_model=schemas.LanguageOut,
     summary="Create language.",
     description="Create language.",
 )
-async def create_language(
+async def create(
     db: AsyncSession = Depends(database.get_db),
     language: schemas.LanguageIn = Body(description="Language to create."),
-):
+) -> schemas.LanguageOut:
     """
     Creates a language in the database.
 
@@ -56,9 +56,35 @@ async def create_language(
         language (schemas.LanguageIn): The language to create.
 
     Returns:
-        schemas.LanguageCreate: The created language.
+        schemas.LanguageOut: The created language.
 
     Raises:
         HTTPException: If the language already exists (409) or if there is an internal server error (500).
     """
-    return await language_service.create_language(db=db, language=language)
+    return await language_service.create(db=db, language=language)
+
+
+@language_router.delete(
+    path="/{id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete language.",
+    description="Delete language.",
+)
+async def delete_by_id(
+    db: AsyncSession = Depends(database.get_db),
+    id: PositiveInt = Path(description="Language ID to delete."),
+) -> None:
+    """
+    Deletes a language by its ID from the database.
+
+    Args:
+        db (AsyncSession): A database session.
+        id (PositiveInt): The ID of the language to delete.
+
+    Returns:
+        None
+
+    Raises:
+        HTTPException: If the language does not exist (404) or if there is an internal server error (500).
+    """
+    return await language_service.delete_by_id(db=db, id=id)
