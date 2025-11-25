@@ -11,3 +11,4 @@ class Language(database.base):
     name = Column(String, nullable=False, unique=True)
     proficiency = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.now(ZoneInfo("America/Sao_Paulo")))
+    updated_at = Column(DateTime, default=datetime.now(ZoneInfo("America/Sao_Paulo")))

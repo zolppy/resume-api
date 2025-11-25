@@ -101,3 +101,39 @@ class LanguageService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to delete language: {str(e)}",
             )
+
+    @staticmethod
+    async def update_by_id(
+        db: AsyncSession, id: PositiveInt, language: schemas.LanguageUpdate
+    ) -> schemas.LanguageOut:
+        """
+        Updates a language by its ID in the database.
+
+        Args:
+            db (AsyncSession): A database session.
+            id (PositiveInt): The ID of the language to update.
+            language (schemas.LanguageUpdate): The language to update.
+
+        Returns:
+            schemas.LanguageOut: The updated language.
+
+        Raises:
+            HTTPException: If the language does not exist (404) or if there is an internal server error (500).
+        """
+        try:
+            updated_language = await language_crud.update_by_id(
+                db=db, id=id, language_update=language
+            )
+            return schemas.LanguageOut.model_validate(updated_language)
+        except HTTPException:
+            raise
+        except IntegrityError:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Language with this name already exists.",
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to update language: {str(e)}",
+            )

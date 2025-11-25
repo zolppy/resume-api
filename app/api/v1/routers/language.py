@@ -88,3 +88,31 @@ async def delete_by_id(
         HTTPException: If the language does not exist (404) or if there is an internal server error (500).
     """
     return await language_service.delete_by_id(db=db, id=id)
+
+
+@language_router.patch(
+    path="/{id}",
+    response_model=schemas.LanguageOut,
+    summary="Update language.",
+    description="Update language.",
+)
+async def update_by_id(
+    db: AsyncSession = Depends(database.get_db),
+    id: PositiveInt = Path(description="Language ID to update."),
+    language: schemas.LanguageUpdate = Body(description="Language to update."),
+) -> schemas.LanguageOut:
+    """
+    Updates a language by its ID in the database.
+
+    Args:
+        db (AsyncSession): A database session.
+        id (PositiveInt): The ID of the language to update.
+        language (schemas.LanguageUpdate): The language to update.
+
+    Returns:
+        schemas.LanguageOut: The updated language.
+
+    Raises:
+        HTTPException: If the language does not exist (404) or if there is an internal server error (500).
+    """
+    return await language_service.update_by_id(db=db, id=id, language=language)

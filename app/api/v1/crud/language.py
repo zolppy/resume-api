@@ -59,7 +59,7 @@ class LanguageCrud:
         return language
 
     @staticmethod
-    async def delete_by_id(db: AsyncSession, id: PositiveInt) -> None:
+    async def delete_by_id(db: AsyncSession, id: PositiveInt):
         """
         Deletes a language by its ID from the database.
 
@@ -81,3 +81,37 @@ class LanguageCrud:
             )
         await db.delete(language)
         await db.commit()
+
+    @staticmethod
+    async def update_by_id(
+        db: AsyncSession, id: PositiveInt, language_update: schemas.LanguageUpdate
+    ) -> models.Language:
+        """
+        Updates a language by its ID in the database.
+
+        Args:
+            db (AsyncSession): A database session.
+            id (PositiveInt): The ID of the language to update.
+            language_update (schemas.LanguageUpdate): The language update data.
+
+        Returns:
+            models.Language: The updated language.
+
+        Raises:
+            HTTPException: If the language does not exist (404).
+        """
+        language = await db.get(models.Language, id)
+        if not language:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Language not found.",
+            )
+        update_data = language_update.model_dump(exclude_unset=True)
+        if update_data:
+            current_time = datetime.now(ZoneInfo("America/Sao_Paulo"))
+            update_data["updated_at"] = current_time
+        for field, value in update_data.items():
+            setattr(language, field, value)
+        await db.commit()
+        await db.refresh(language)
+        return language
