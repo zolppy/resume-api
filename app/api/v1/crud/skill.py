@@ -1,8 +1,10 @@
+from datetime import datetime
 from typing import Optional
-
-from pydantic import PositiveInt
+from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from .. import models, schemas
+from pydantic import PositiveInt
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -54,3 +56,36 @@ class SkillCrud:
         )
         result = await db.execute(query)
         return result.scalars().all()
+
+    @staticmethod
+    async def update_by_id(
+        db: AsyncSession, id: PositiveInt, skill: schemas.SkillUpdate
+    ) -> models.Skill:
+        """
+        Updates a skill by its ID in the database.
+
+        Args:
+            db (AsyncSession): A database session.
+            id (PositiveInt): The ID of the skill to update.
+            skill (schemas.SkillUpdate): The skill update data.
+
+        Returns:
+            models.Skill: The updated skill.
+
+        Raises:
+            HTTPException: If the skill does not exist (404).
+        """
+        skill = await db.get(models.Skill, id)
+        if not skill:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Language not found."
+            )
+        update_data = skill.model_dump(exclude_unset=True)
+        if update_data:
+            current_time = datetime.now(ZoneInfo("America/Sao_Paulo"))
+            update_data["updated_at"] = current_time
+        for field, value in update_data.items():
+            setattr(skill, field, value)
+        await db.commit()
+        await db.refresh(skill)
+        return skill

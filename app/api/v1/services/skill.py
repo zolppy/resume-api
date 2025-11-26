@@ -75,3 +75,37 @@ class SkillService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to get skills: {str(e)}",
             )
+
+    @staticmethod
+    async def update_by_id(
+        db: AsyncSession, id: int, skill: schemas.SkillUpdate
+    ) -> schemas.SkillOut:
+        """
+        Updates a skill by its ID in the database.
+
+        Args:
+            db (AsyncSession): A database session.
+            id (int): The ID of the skill to update.
+            skill (schemas.SkillUpdate): The skill to update.
+
+        Returns:
+            schemas.SkillOut: The updated skill.
+
+        Raises:
+            HTTPException: If the skill does not exist (404), if there is an internal server error (500) or if the skill name already exists (409).
+        """
+        try:
+            updated_skill = await skill_crud.update_by_id(db=db, id=id, skill=skill)
+            return schemas.SkillOut.model_validate(updated_skill)
+        except HTTPException:
+            raise
+        except IntegrityError:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Language with this name already exists.",
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to update skill: {str(e)}",
+            )

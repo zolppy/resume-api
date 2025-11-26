@@ -122,7 +122,7 @@ class LanguageService:
         """
         try:
             updated_language = await language_crud.update_by_id(
-                db=db, id=id, language_update=language
+                db=db, id=id, language=language
             )
             return schemas.LanguageOut.model_validate(updated_language)
         except HTTPException:

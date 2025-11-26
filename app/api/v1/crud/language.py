@@ -83,7 +83,7 @@ class LanguageCrud:
 
     @staticmethod
     async def update_by_id(
-        db: AsyncSession, id: PositiveInt, language_update: schemas.LanguageUpdate
+        db: AsyncSession, id: PositiveInt, language: schemas.LanguageUpdate
     ) -> models.Language:
         """
         Updates a language by its ID in the database.
@@ -91,7 +91,7 @@ class LanguageCrud:
         Args:
             db (AsyncSession): A database session.
             id (PositiveInt): The ID of the language to update.
-            language_update (schemas.LanguageUpdate): The language update data.
+            language (schemas.LanguageUpdate): The language update data.
 
         Returns:
             models.Language: The updated language.
@@ -105,7 +105,7 @@ class LanguageCrud:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Language not found.",
             )
-        update_data = language_update.model_dump(exclude_unset=True)
+        update_data = language.model_dump(exclude_unset=True)
         if update_data:
             current_time = datetime.now(ZoneInfo("America/Sao_Paulo"))
             update_data["updated_at"] = current_time
