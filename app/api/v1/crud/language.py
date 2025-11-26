@@ -51,7 +51,6 @@ class LanguageCrud:
             models.Language: The created language.
         """
         language_dict = language.model_dump()
-        language_dict["created_at"] = datetime.now(ZoneInfo("America/Sao_Paulo"))
         language = models.Language(**language_dict)
         db.add(language)
         await db.commit()

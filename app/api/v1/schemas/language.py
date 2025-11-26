@@ -10,6 +10,8 @@ proficiency_examples = [p for p in utils.Proficiency]
 
 class LanguageUpdate(BaseModel):
     name: Optional[str] = Field(
+        min_length=1,
+        max_length=50,
         default=None,
         description="Name of language.",
         examples=name_examples,
@@ -23,6 +25,8 @@ class LanguageUpdate(BaseModel):
 
 class LanguageIn(BaseModel):
     name: str = Field(
+        min_length=1,
+        max_length=50,
         description="Name of language.",
         examples=name_examples,
     )
