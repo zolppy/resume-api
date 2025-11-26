@@ -9,5 +9,5 @@ class Skill(database.base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False, unique=True)
-    created_at = Column(DateTime, default=datetime.now(ZoneInfo("America/Sao_Paulo")))
-    updated_at = Column(DateTime, default=datetime.now(ZoneInfo("America/Sao_Paulo")))
+    created_at = Column(DateTime, default=datetime.now(ZoneInfo("America/Bahia")))
+    updated_at = Column(DateTime, default=datetime.now(ZoneInfo("America/Bahia")))

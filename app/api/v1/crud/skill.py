@@ -82,7 +82,7 @@ class SkillCrud:
             )
         update_data = skill.model_dump(exclude_unset=True)
         if update_data:
-            current_time = datetime.now(ZoneInfo("America/Sao_Paulo"))
+            current_time = datetime.now(ZoneInfo("America/Bahia"))
             update_data["updated_at"] = current_time
         for field, value in update_data.items():
             setattr(skill, field, value)
