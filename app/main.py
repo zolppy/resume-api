@@ -6,6 +6,10 @@ from .api.v1 import schemas, database, api_v1_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    Creates all tables in the database on application startup and
+    yields control back to the caller after the tables have been created.
+    """
     await database.create_tables()
     yield
 
@@ -15,7 +19,7 @@ app = FastAPI(
     description="""
     Manages Resume's data.
     """,
-    version="0.06.3",
+    version="0.07.2",
     lifespan=lifespan,
 )
 
@@ -29,6 +33,15 @@ app.include_router(router=api_v1_router, prefix="/api/v1")
     description="Get the URLs for the API documentation.",
 )
 def root(request: Request) -> schemas.RootOut:
+    """
+    Get the URLs for the API documentation.
+
+    Args:
+        request (Request): The HTTP request.
+
+    Returns:
+        schemas.RootOut: A response containing the URLs for the API documentation.
+    """
     base_url = str(request.base_url)
     docs_url = base_url.rstrip("/") + str(app.docs_url)
     redoc_url = base_url.rstrip("/") + str(app.redoc_url)
