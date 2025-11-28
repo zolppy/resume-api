@@ -1,6 +1,4 @@
-from datetime import datetime
 from typing import Optional
-from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from .. import models, schemas
 from pydantic import PositiveInt
@@ -75,15 +73,12 @@ class SkillCrud:
         Raises:
             HTTPException: If the skill does not exist (404).
         """
+        update_data = skill.model_dump(exclude_unset=True)
         skill = await db.get(models.Skill, id)
         if not skill:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Language not found."
             )
-        update_data = skill.model_dump(exclude_unset=True)
-        if update_data:
-            current_time = datetime.now(ZoneInfo("America/Bahia"))
-            update_data["updated_at"] = current_time
         for field, value in update_data.items():
             setattr(skill, field, value)
         await db.commit()

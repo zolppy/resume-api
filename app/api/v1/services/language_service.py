@@ -5,8 +5,6 @@ from fastapi import status, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-language_crud = crud.LanguageCrud()
-
 
 class LanguageService:
     @staticmethod
@@ -30,7 +28,7 @@ class LanguageService:
             HTTPException: If languages not found (404) or if there is an internal server error (500).
         """
         try:
-            languages = await language_crud.get_all(
+            languages = await crud.LanguageCrud.get_all(
                 db=db, page=page, items_per_page=items_per_page
             )
             if not languages:
@@ -64,7 +62,7 @@ class LanguageService:
             HTTPException: If the language already exists (409) or if there is an internal server error (500).
         """
         try:
-            created_language = await language_crud.create(db=db, language=language)
+            created_language = await crud.LanguageCrud.create(db=db, language=language)
             return schemas.LanguageOut.model_validate(created_language)
         except IntegrityError:
             raise HTTPException(
@@ -93,7 +91,7 @@ class LanguageService:
             HTTPException: If the language does not exist (404) or if there is an internal server error (500).
         """
         try:
-            await language_crud.delete_by_id(db=db, id=id)
+            await crud.LanguageCrud.delete_by_id(db=db, id=id)
         except HTTPException:
             raise
         except Exception as e:
@@ -121,7 +119,7 @@ class LanguageService:
             HTTPException: If the language does not exist (404) or if there is an internal server error (500).
         """
         try:
-            updated_language = await language_crud.update_by_id(
+            updated_language = await crud.LanguageCrud.update_by_id(
                 db=db, id=id, language=language
             )
             return schemas.LanguageOut.model_validate(updated_language)

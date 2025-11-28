@@ -19,7 +19,7 @@ app = FastAPI(
     description="""
     Manages Resume's data.
     """,
-    version="0.08.3",
+    version="0.08.8",
     lifespan=lifespan,
 )
 

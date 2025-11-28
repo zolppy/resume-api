@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Path, status, Body, Depends, Query
 
 language_router = APIRouter()
-language_service = services.LanguageService()
 
 
 @language_router.get(
@@ -32,7 +31,7 @@ async def get_all(
     Returns:
         List[schemas.LanguageOut]: List of languages.
     """
-    return await language_service.get_all(
+    return await services.LanguageService.get_all(
         db=db, page=page, items_per_page=items_per_page
     )
 
@@ -61,7 +60,7 @@ async def create(
     Raises:
         HTTPException: If the language already exists (409) or if there is an internal server error (500).
     """
-    return await language_service.create(db=db, language=language)
+    return await services.LanguageService.create(db=db, language=language)
 
 
 @language_router.delete(
@@ -87,7 +86,7 @@ async def delete_by_id(
     Raises:
         HTTPException: If the language does not exist (404) or if there is an internal server error (500).
     """
-    return await language_service.delete_by_id(db=db, id=id)
+    return await services.LanguageService.delete_by_id(db=db, id=id)
 
 
 @language_router.patch(
@@ -115,4 +114,4 @@ async def update_by_id(
     Raises:
         HTTPException: If the language does not exist (404) or if there is an internal server error (500).
     """
-    return await language_service.update_by_id(db=db, id=id, language=language)
+    return await services.LanguageService.update_by_id(db=db, id=id, language=language)

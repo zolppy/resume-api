@@ -1,6 +1,4 @@
 from typing import Optional
-from datetime import datetime
-from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from .. import schemas, models
 from pydantic import PositiveInt
@@ -99,16 +97,13 @@ class LanguageCrud:
         Raises:
             HTTPException: If the language does not exist (404).
         """
+        update_data = language.model_dump(exclude_unset=True)
         language = await db.get(models.Language, id)
         if not language:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Language not found.",
             )
-        update_data = language.model_dump(exclude_unset=True)
-        if update_data:
-            current_time = datetime.now(ZoneInfo("America/Bahia"))
-            update_data["updated_at"] = current_time
         for field, value in update_data.items():
             setattr(language, field, value)
         await db.commit()

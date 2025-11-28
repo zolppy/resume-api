@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Path, Query, status, Body, Depends
 
 skill_router = APIRouter()
-skill_service = services.SkillService
 
 
 @skill_router.post(
@@ -32,7 +31,7 @@ async def create(
     Raises:
         HTTPException: If the skill already exists (409) or if there is an internal server error (500).
     """
-    return await skill_service.create(db=db, skill=skill)
+    return await services.SkillService.create(db=db, skill=skill)
 
 
 @skill_router.get(
@@ -62,7 +61,9 @@ async def get_all(
     Raises:
         HTTPException: If skills not found (404) or if there is an internal server error (500).
     """
-    return await skill_service.get_all(db=db, page=page, items_per_page=items_per_page)
+    return await services.SkillService.get_all(
+        db=db, page=page, items_per_page=items_per_page
+    )
 
 
 @skill_router.patch(
@@ -90,4 +91,4 @@ async def update_by_id(
     Raises:
         HTTPException: If the skill does not exist (404) or if there is an internal server error (500).
     """
-    return await skill_service.update_by_id(db=db, id=id, skill=skill)
+    return await services.SkillService.update_by_id(db=db, id=id, skill=skill)

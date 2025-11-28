@@ -1,12 +1,9 @@
-from typing import List, Optional
-
-from pydantic import PositiveInt
 from .. import schemas, crud
+from typing import List, Optional
+from pydantic import PositiveInt
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-
-skill_crud = crud.SkillCrud()
 
 
 class SkillService:
@@ -26,7 +23,7 @@ class SkillService:
             HTTPException: If the skill already exists (409) or if there is an internal server error (500).
         """
         try:
-            created_skill = await skill_crud.create(db=db, skill=skill)
+            created_skill = await crud.SkillCrud.create(db=db, skill=skill)
             return schemas.SkillOut.model_validate(created_skill)
         except IntegrityError:
             raise HTTPException(
@@ -60,7 +57,7 @@ class SkillService:
             HTTPException: If skills not found (404) or if there is an internal server error (500).
         """
         try:
-            skills = await skill_crud.get_all(
+            skills = await crud.SkillCrud.get_all(
                 db=db, page=page, items_per_page=items_per_page
             )
             if not skills:
@@ -95,7 +92,7 @@ class SkillService:
             HTTPException: If the skill does not exist (404), if there is an internal server error (500) or if the skill name already exists (409).
         """
         try:
-            updated_skill = await skill_crud.update_by_id(db=db, id=id, skill=skill)
+            updated_skill = await crud.SkillCrud.update_by_id(db=db, id=id, skill=skill)
             return schemas.SkillOut.model_validate(updated_skill)
         except HTTPException:
             raise
