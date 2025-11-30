@@ -35,7 +35,9 @@ class LanguageService:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND, detail="Languages not found."
                 )
-            return [schemas.LanguageOut.model_validate(l) for l in languages]
+            return [
+                schemas.LanguageOut.model_validate(language) for language in languages
+            ]
         except HTTPException:
             raise
         except Exception as e:
