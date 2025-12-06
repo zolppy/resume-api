@@ -9,3 +9,6 @@ api_v1_router.include_router(
 api_v1_router.include_router(
     router=routers.skill_router, prefix="/skills", tags=["Skills"]
 )
+api_v1_router.include_router(
+    router=routers.personal_router, prefix="/personal", tags=["Personal"]
+)

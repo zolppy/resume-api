@@ -19,7 +19,7 @@ app = FastAPI(
     description="""
     Manages Resume's data.
     """,
-    version="0.08.8",
+    version="0.09.8",
     lifespan=lifespan,
 )
 app.include_router(router=api_v1_router, prefix="/api/v1")
